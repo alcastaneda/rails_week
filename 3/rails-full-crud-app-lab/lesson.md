@@ -8,6 +8,10 @@ We are going to learn how to make a CRUD app in rails today.
 Recap: what is CRUD? Create Read Update Destroy
 Why should we know this? Core functionality of apps.
 
+routes:
+```
+resources :books
+```
 ```html
 <%= form_for(@book) do |f| %>
     <%= f.label :title %>
