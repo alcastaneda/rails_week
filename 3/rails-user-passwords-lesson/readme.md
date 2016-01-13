@@ -63,7 +63,6 @@ To implement hashing in our app, we will use a gem called `bcrypt-ruby` :
 ```bash
 gem 'bcrypt', '~> 3.1.2'
 bundle
-rbenv rehash
 ```
 
 Now we can create a model called `User` :
@@ -127,7 +126,6 @@ Then in terminal:
 
 ```bash
 bundle
-rbenv rehash
 ```
 
 Now we can generate a User model with an email and pasword_digest.
@@ -231,7 +229,7 @@ Now we can create routes for this controller.  In "routes.rb" you should now hav
 root "users#index"
 resources :users, only: [:new, :index, :create]
 
-get 'login', to: 'sessions#new'
+get '/login', to: 'sessions#new'
 resources :sessions, only: [:new, :create, :destroy]
 ```
 
@@ -254,7 +252,7 @@ class SessionsController < ApplicationController
 
  def destroy
     session[:user_id] = nil
-  redirect_to login_path
+  redirect_to "/login"
  end
 
 end
@@ -282,15 +280,15 @@ In Application controller write:
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
   end
 
-  def authenticate
+  def authorize
     unless current_user
-      redirect_to login_url
+      redirect_to login
     end
   end
 ```
 In books controller write:
 ```
-  before_action :authenticate, except: [:index, :show ]
+  before_action :authorize, except: [:index, :show ]
 ```
 Now we can delete the extra templates
 
