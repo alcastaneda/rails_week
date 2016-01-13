@@ -120,6 +120,9 @@ touch app/views/books/index.html.erb
 <% @books.each do |book| %>
   <h3><%= book.title %></h3>
   <p><%= book.checked_out %></p>
+<%= link_to book.title, book_path(book.id) %>
+or
+  <%= link_to "Show", book_path(book.id) %>
 <% end %>
 ```
 ##Conclusion
