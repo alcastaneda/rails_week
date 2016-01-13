@@ -1,11 +1,13 @@
 ##Objectives
+-Understand how to make one form for new and edit
+-Be able to render form in view
+-Know how to perform CRUD actions
 
 ##Introduction
 We are going to learn how to make a CRUD app in rails today.
 Recap: what is CRUD? Create Read Update Destroy
 Why should we know this? Core functionality of apps.
 
-##Code Along
 ```html
 <%= form_for(@book) do |f| %>
     <%= f.label :title %>
@@ -26,7 +28,7 @@ Why should we know this? Core functionality of apps.
 * file_field
 * label
 
-##DEMO
+##DEMO/Codealong
 rails new library_app
 rails g model book checked_out:boolean title:string
 rails g controller book index show new create edit update destroy

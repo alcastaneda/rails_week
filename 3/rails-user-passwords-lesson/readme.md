@@ -207,46 +207,15 @@ In "views/users/new.html.erb":
 ```
 <h1>Sign Up</h1>
 <%= form_for @user do |f| %>
-  <% if @user.errors.any? %>
-  <div class="error_messages">
-    <h2>Form is invalid</h2>
-    <ul>
-      <% for message in @user.errors.full_messages %>
-      <li><%= message %></li>
-      <% end %>
-    </ul>
-  </div>
-  <% end %>
-
-  <div class="field">
     <%= f.label :email %>
     <%= f.text_field :email %>
-  </div>
-  <div class="field">
     <%= f.label :password %>
     <%= f.password_field :password %>
-  </div>
-  <div class="field">
     <%= f.label :password_confirmation %>
     <%= f.password_field :password_confirmation %>
-  </div>
-  <div class="actions">
     <%= f.submit %>
-  </div>
 <% end %>
 ```
-
-In "views/application/layout.html.erb", at the top of our body section, add:  
-
-```erb
-<% flash.each do |name, message| %>
-  <div class="flash-message flash-message-<%= name %>">
-    <%= message %>
-  </div>
-<% end %>
-```
-
-> Note: Quickly explain flash messages in context of Rails. [http://guides.rubyonrails.org/action_controller_overview.html#the-flash]()
 
 #### Sessions Controller
 
@@ -276,28 +245,22 @@ class SessionsController < ApplicationController
  def create
   user = User.find_by_email(params[:email])
   if user && user.authenticate(params[:password])
-    redirect_to root_path, notice: "logged in!"
+    session[:user_id] = user.id
+    redirect_to books_path
   else
-   flash.now.alert = "invalid login credentials"
    render "new"
   end
  end
 
  def destroy
-  redirect_to root_url, notice: "logged out!"
+    session[:user_id] = nil
+  redirect_to login_path
  end
 
 end
 ```
 
 Let's go through this line by line: All the authentication logic happens in the create method, but notice, first, we try to find a record in the table users. The line after, if there is a user record and if the password sent through the form corresponds to the hashed password in the database, then it means all the credentials (email + password) are valid, otherwise, the else case will be executed and either the email or the password were invalid - the user would get a message 'invalid login credentials' and be redirected to the ```sessions/new``` endpoint.
-
-**Note: Flash.now vs Flash**
-
-```
-flash.now[:message] = "Hello current action"
-```
-When you need to pass an object to the next action, you use the standard flash assign ([]=). When you need to pass an object to the current action, you use now, and your object will vanish when the current action is done.
 
 Now we will need to add a login form:
 
@@ -306,18 +269,29 @@ In "views/sessions/new.html.erb":
 ```erb
 <h1>Login</h1>
 <%= form_tag sessions_path do %>
-  <div class="field">
     <%= label_tag :email %>
     <%= text_field_tag :email %>
-  </div>
-  <div class="field">
     <%= label_tag :password %>
     <%= password_field_tag :password %>
-  </div>
-  <div class="actions"><%= submit_tag "Log in" %></div>
+    <%= submit_tag "Log in" %>
 <% end %>
 ```
+In Application controller write:
+```
+ def current_user
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+  end
 
+  def authenticate
+    unless current_user
+      redirect_to login_url
+    end
+  end
+```
+In books controller write:
+```
+  before_action :authenticate, except: [:index, :show ]
+```
 Now we can delete the extra templates
 
 - sessions/create.html.erb
